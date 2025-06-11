@@ -7,6 +7,8 @@ from test1 import process_frame
 import os
 from tracker import*
 from datetime import datetime
+# Add these imports for immediate license plate processing
+from process_license_images import create_database, detect_license_plate_from_image, insert_license_record
 
 
 # Load vehicle detection model (replace with your vehicle model)
@@ -22,14 +24,14 @@ def RGB(event, x, y, flags, param):
 cv2.namedWindow('RGB')
 cv2.setMouseCallback('RGB', RGB)
 
-cap = cv2.VideoCapture('videos/pixel7.mp4')  # Replace with your video file path
+cap = cv2.VideoCapture('videos/VID_20250430_111055.mp4')  # Replace with your video file path
 my_file = open("coco.txt", "r")
 data = my_file.read()
 class_list = data.split("\n")
 tracker=Tracker()
 count = 0
-area = [(397, 326), (449, 387), (816, 370), (633, 312)] # for pixel7
-#area = [(237, 356), (428, 512), (891, 428), (604, 365)] # for VID...
+#area = [(397, 326), (449, 387), (816, 370), (633, 312)] # for pixel7
+area = [(237, 356), (428, 512), (891, 428), (604, 365)] # for VID...
 
 # Create directory for today's date
 today_date = datetime.now().strftime('%Y-%m-%d')
@@ -40,6 +42,7 @@ license_plate_dir = os.path.join('license_plates', today_date)
 os.makedirs(license_plate_dir, exist_ok=True)
 
 list1=[]
+conn, cursor = create_database()
 while True:
     ret, frame = cap.read()
     count += 1
@@ -97,6 +100,10 @@ while True:
                         cv2.imwrite(lp_path, lp_crop)
                         print(f"Saved license plate crop: {lp_path}")
 
+                        license_plate = detect_license_plate_from_image(lp_path, "Red Light Violation")
+                        if license_plate:
+                            insert_license_record(cursor, conn, license_plate, "Red Light Violation", lp_path)
+
            else:     
                 cvzone.putTextRect(frame, f'{id}', (x3, y3), 1, 1)
                 cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 255, 0), 2)
@@ -113,34 +120,11 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 
+# Close the database connection after processing
+conn.close()
+
 # After video processing is complete, automatically process license plate images
 print("\n" + "="*80)
 print("VIDEO PROCESSING COMPLETED!")
 print("="*80)
-print(f"Starting automatic license plate OCR processing for date: {today_date}")
-print("="*80)
-
-try:
-    # Import and run the batch processing function from process_license_images.py
-    from process_license_images import process_license_images_folder
-    
-    # Automatically process today's license plate images and store in database
-    print(f"Processing license plate images from: {license_plate_dir}")
-    process_license_images_folder("license_plates", today_date, "Red Light Violation")
-    
-    print("\n" + "="*80)
-    print("AUTOMATIC LICENSE PLATE PROCESSING COMPLETED!")
-    print("="*80)
-    print("All detected license plates have been processed and stored in the database.")
-    
-except ImportError as e:
-    print(f"Error: Could not import process_license_images module: {e}")
-    print("Make sure process_license_images.py is in the same directory")
-    print("You can manually run: python process_license_images.py")
-    
-except Exception as e:
-    print(f"Error during automatic license plate processing: {e}")
-    print("You can manually run: python process_license_images.py")
-
-print(f"\nProgram completed successfully!")
 print(f"Check the database for license plate records from {today_date}")
