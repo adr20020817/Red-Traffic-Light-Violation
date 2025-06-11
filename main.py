@@ -102,7 +102,7 @@ while True:
 
                         license_plate = detect_license_plate_from_image(lp_path, "Red Light Violation")
                         if license_plate:
-                            insert_license_record(cursor, conn, license_plate, "Red Light Violation", lp_path)
+                            insert_license_record(cursor, conn, license_plate, "Red Light Violation", output_path)
 
            else:     
                 cvzone.putTextRect(frame, f'{id}', (x3, y3), 1, 1)
