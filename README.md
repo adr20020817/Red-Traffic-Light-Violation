@@ -13,6 +13,7 @@ This project implements an automated system for detecting and processing red lig
 
 ## Prerequisites
 Make sure that the program runs on Python version not more than Python 3.9
+<br>
 For the required Python packages please see <u>requirements.txt</u>  
 
 ## Technical Implementation
