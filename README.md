@@ -11,6 +11,10 @@ This project implements an automated system for detecting and processing red lig
 - **Database Integration**: Stores violation records including date, time, location, license plate number, and vehicle image
 - **SMS Notification**: Automatically sends violation notices to registered vehicle owners
 
+##Prerequisites
+Make sure that the program runs on Python version not more than Python 3.9
+For the required Python packages please see <u>requirements.txt</u>.  
+
 ## Technical Implementation
 
 ### Hardware Components
