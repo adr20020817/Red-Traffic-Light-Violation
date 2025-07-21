@@ -1,11 +1,13 @@
 import requests
 import base64
+from datetime import datetime
+import random
 
 # Beem API Configuration
 API_KEY = "383bcac14e9c302d"
 APP_SECRET = "YmE2NzQ5Y2JkNDdhNzQ5YmQwMjc0N2Q2OWZlODdlOGY4NTQ1ODM1YTYwNDE2NGI0NDNhYTUwZGRjMzE4MmNjMg=="
 
-def send_sms(phone_number, message, license_plate=None, area_of_violation="traffic intersection"):
+def send_sms(phone_number, message, license_plate=None, area_of_violation="Bamaga Intersection"):
 
     try:
         # Encode the credentials
@@ -17,9 +19,19 @@ def send_sms(phone_number, message, license_plate=None, area_of_violation="traff
             "Content-Type": "application/json"
         }
 
+        # Generate control number
+        control_number = f"994944{random.randint(1000, 9999)}"
+        # Get current date and time
+        now = datetime.now()
+        date_str = now.strftime("%d-%m-%y")
+        time_str = now.strftime("%H:%M:%S")
+
         # Use custom message or create default violation message
         if message is None and license_plate:
-            formatted_message = f"Your vehicle with plate number {license_plate} was detected violating the red lights at the {area_of_violation}. If it wasn't you please notify the authorities otherwise you are penalized. Thanks."
+            formatted_message = (
+                f"Dear Vehicle Owner, your vehicle with License Plate: {license_plate} was detected violating a red light "
+                f"on {date_str} at {time_str} at {area_of_violation}. Fine payment control number: {control_number}."
+            )
         else:
             formatted_message = message
 
@@ -60,14 +72,26 @@ def send_sms(phone_number, message, license_plate=None, area_of_violation="traff
         print(f"❌ Unexpected error sending SMS: {e}")
         return False
 
-def send_violation_sms(phone_number, owner_name, license_plate, area="traffic intersection"):
+def send_violation_sms(phone_number, owner_name, license_plate, area_of_violation="Bamaga Intersection"):
+    if not area_of_violation:
+        area_of_violation = "Bamaga Intersection"
+    # Generate control number in the format 994944xxxx
+    control_number = f"994944{random.randint(1000, 9999)}"
+    # Get current date and time
+    now = datetime.now()
+    date_str = now.strftime("%d-%m-%y")
+    time_str = now.strftime("%H:%M:%S")
 
-    message = f"Dear {owner_name}, your vehicle [{license_plate}] violated a red light at {area}. Please respond if this wasn't you. Thanks."
-    return send_sms(phone_number, message, license_plate, area)
+    # Format the message as requested
+    message = (
+        f"Dear {owner_name}, your vehicle with License Plate: {license_plate} was detected violating a red light "
+        f"on {date_str} at {time_str} at {area_of_violation}. Fine payment control number: {control_number}."
+    )
+    return send_sms(phone_number, message, license_plate, area_of_violation)
 
 def test_sms():
     """Test function to send a sample SMS"""
-    test_number = "+255711995201"
+    test_number = "+255694434973"
     test_message = "This is a test message from your traffic violation system."
     return send_sms(test_number, test_message)
 

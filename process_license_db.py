@@ -23,7 +23,7 @@ def create_database():
         cursor.execute("CREATE DATABASE IF NOT EXISTS violation_records")
         cursor.execute("USE violation_records")
         cursor.execute('''
-        CREATE TABLE IF NOT EXISTS license_records (
+        CREATE TABLE IF NOT EXISTS license_plate_records (
             id INT AUTO_INCREMENT PRIMARY KEY,
             license_plate VARCHAR(50) NOT NULL,
             offense VARCHAR(100),
@@ -104,9 +104,9 @@ def add_license_to_owners_if_not_exists(cursor, conn, license_plate):
         return False
 
 def get_all_detected_license_plates(cursor):
-    """Get all unique license plates from license_records table"""
+    """Get all unique license plates from license_plate_records table"""
     try:
-        cursor.execute("SELECT DISTINCT license_plate FROM license_records")
+        cursor.execute("SELECT DISTINCT license_plate FROM license_plate_records")
         results = cursor.fetchall()
         return [result[0] for result in results]
     except mysql.connector.Error as err:
@@ -304,7 +304,7 @@ def insert_license_record(cursor, conn, license_plate, offense, image_path):
     try:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cursor.execute(
-            "INSERT INTO license_records (license_plate, offense, timestamp, image_path) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO license_plate_records (license_plate, offense, timestamp, image_path) VALUES (%s, %s, %s, %s)",
             (license_plate, offense, timestamp, image_path)
         )
         
